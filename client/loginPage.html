@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+</head>
+<script>
+ async function  logIn(e) {
+e.preventDefault()
+
+// get parameters
+const userName = document.getElementById("username").value
+const email = document.getElementById("email").value
+
+// send request
+const response = await fetch(`http://localhost:3000/login/${userName}/${email}`)
+const data = await response.json(); 
+console.log(data);
+// window.location.href = "homePage.html";
+    }
+</script>
+<body>
+    <form onsubmit="logIn(event)">
+        UserName: <input type="text" id="username" required> </br>
+        Email:<input type="email" id="email" required> </br>
+        <input type="submit" value="log-in"> </br>
+    </form>
+
+</body>
+</html>
