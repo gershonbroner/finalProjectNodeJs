@@ -5,7 +5,7 @@ require("./DB/connectdb");
 const app = express();
 const PORT = 3000;
 app.use(cors());
-
+app.use(express.json());
 app.use("/login", loginService);
 
 app.listen(PORT, () => {

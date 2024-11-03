@@ -3,7 +3,48 @@
 <head>
     
 </head>
-<body>
+<script>
+ // import requireAuth from "./Auth/auth"
+  async  function sendToken(){
+    const tokenSessionStorage = sessionStorage.getItem("token");
+    console.log(tokenSessionStorage);
+    if(tokenSessionStorage){
+        const response = await fetch("http://localhost:3000/login/sendtoken",
+      {
+method:"POST",
+headers: {
+    "Content-Type": "application/json",
+  },
+ 
+body: JSON.stringify({
+    token:tokenSessionStorage
+      }),
+    
+      })
+      const data = await response.json();
+      console.log(data);
+    }else{
+        console.log("error");
+        
+    }
+       
+      
+    }
+function requireAuth() {
+  if (!sessionStorage.getItem("token")) {
+    window.location.href= "loginPage.html";
+  }
+}
+function logout(){
+  // delete token
+  sessionStorage.removeItem("token")
+  sessionStorage.removeItem("nameuser")
+  // redirect to login page
+  window.location.href = "loginPage.html";
+}
+</script>
+<body onload="requireAuth()">
     <h1>homepage</h1>
+   <button onclick="logout()">log-out</button>
 </body>
-</html>
+</html> 

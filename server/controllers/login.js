@@ -9,26 +9,50 @@ const usersService = require("../services/usersService");
 
 router.get("/:userName/:email", async (req, res) => {
   const { userName, email } = req.params;
+  try {
+    const { data } = await axios.get(
+      "https://jsonplaceholder.typicode.com/users"
+    );
 
-  const { data } = await axios.get(
-    "https://jsonplaceholder.typicode.com/users"
-  );
+    const user = data.find(
+      (user) => user.username === userName && user.email === email
+    );
 
-  const user = data.find(
-    (user) => user.username === userName && user.email === email
-  );
-
-  if (user) {
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "Username or email does not exist" });
+    }
     // check if user registered in db
     const userDB = await usersService.findUserRegister(user.name);
-    // if yes create token and send to client
-    if (userDB) {
-      token = jwt.sign({ id: userDB._id }, process.env.SECRET_JWT);
-      return res.json({ message: "log-in succesfuly", token: token });
+    if (!userDB) {
+      return res.status(404).json({ message: "User not registered" });
     }
-    return res.json("user not register");
+    // if yes create token and send to client
+    token = jwt.sign(
+      { id: userDB.id, fullName: userDB.FullName },
+      process.env.SECRET_JWT,
+      { expiresIn: "1h" }
+    );
+    return res
+      .status(200)
+      .json({ message: "log-in succesfuly", token, nameUser: userDB.FullName });
+  } catch (err) {
+    console.error("Error during login process:", error);
+    return res
+      .status(500)
+      .json({ message: "An error occurred. Please try again later." });
   }
-  return res.json("userName or email not exits");
 });
 
+router.post("/sendtoken", (req, res) => {
+  const { token } = req.body;
+
+  jwt.verify(token, process.env.SECRET_JWT, (err, data) => {
+    if (err) {
+      res.status(500).json("Failed to authenticate token");
+    }
+    return res.json(data);
+  });
+});
 module.exports = router;
